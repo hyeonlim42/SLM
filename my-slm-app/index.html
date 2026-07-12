@@ -1,1 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Local SLM App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white p-8 font-sans">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <h1 class="text-3xl font-bold text-teal-400">Local AI Core</h1>
+        
+        <div id="chatBox" class="bg-slate-800 p-4 h-64 rounded-lg overflow-y-auto border border-slate-700">
+            <p class="text-slate-400 text-sm">System ready. Awaiting prompt...</p>
+        </div>
 
+        <div class="flex gap-4">
+            <input type="text" id="promptInput" class="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-teal-500" placeholder="Ask the AI something...">
+            <button onclick="askAI()" class="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold py-3 px-6 rounded-lg transition-all">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function askAI() {
+            const input = document.getElementById('promptInput');
+            const chatBox = document.getElementById('chatBox');
+            const prompt = input.value;
+            
+            if(!prompt) return;
+            
+            chatBox.innerHTML += `<p class="mt-2 text-teal-300"><b>You:</b> ${prompt}</p>`;
+            input.value = '';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+                const data = await response.json();
+                chatBox.innerHTML += `<p class="mt-2 text-white"><b>AI:</b> ${data.response}</p>`;
+            } catch (err) {
+                chatBox.innerHTML += `<p class="mt-2 text-red-400"><b>Error:</b> AI backend not responding. Ensure Python is running.</p>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
