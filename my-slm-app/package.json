@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Desktop AI App for Linux",
   "author": "Developer",
+  "repository": "hyeonlim42/SLM",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
