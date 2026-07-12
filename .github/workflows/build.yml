@@ -10,7 +10,16 @@ jobs:
     
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            target: --windows
+            artifact_path: dist/*.exe
+          - os: macos-latest
+            target: --mac
+            artifact_path: dist/*.dmg
+          - os: ubuntu-latest
+            target: --linux
+            artifact_path: dist/*.AppImage
 
     steps:
       - name: Checkout Code
@@ -22,10 +31,12 @@ jobs:
           node-version: 20
 
       - name: Install Node Dependencies
+        working-directory: ./my-slm-app
         run: npm install
 
-      - name: Compile Installers
-        run: npm run dist
+      - name: Compile OS Specific Installer
+        working-directory: ./my-slm-app
+        run: npx electron-builder ${{ matrix.target }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -33,5 +44,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: installers-${{ matrix.os }}
-          path: dist/*.*
+          name: installer-${{ matrix.os }}
+          path: my-slm-app/${{ matrix.artifact_path }}
